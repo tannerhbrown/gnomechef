@@ -69,20 +69,23 @@ const FILTER_PARAMS = {
 };
 
 const EXCLUDE_TAGS = [
-  "dessert",
-  "sweet",
-  "cocktail",
-  "beverage",
-  "drink",
-  "alcoholic-beverage",
-  "smoothie",
-  "juice",
-  "cake",
-  "cookie",
-  "pastry",
-  "candy",
-  "ice-cream",
+  "dessert", "sweet", "cocktail", "beverage", "drink",
+  "alcoholic-beverage", "smoothie", "juice", "cake",
+  "cookie", "pastry", "candy", "ice-cream",
 ].join(",");
+
+const EXCLUDE_DISH_TYPES = new Set([
+  "dessert", "sweet", "cocktail", "beverage", "drink",
+  "alcoholic beverage", "smoothie", "juice", "cake",
+  "cookie", "pastry", "candy", "ice cream", "condiment",
+  "dip", "sauce", "marinade", "frosting", "icing",
+  "bread", "biscuit", "muffin", "pancake", "waffle",
+]);
+
+function isExcluded(r) {
+  const dishTypes = (r.dishTypes || []).map(d => d.toLowerCase());
+  return dishTypes.some(d => EXCLUDE_DISH_TYPES.has(d));
+}
 
 const PREFERRED_SOURCES = [
   "cooking.nytimes.com",
@@ -187,8 +190,8 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: "No recipes returned" });
     }
 
-    // Remove blocked sources
-    const filtered = data.results.filter(r => !isBlocked(r.sourceUrl));
+    // Remove blocked sources AND excluded dish types
+    const filtered = data.results.filter(r => !isBlocked(r.sourceUrl) && !isExcluded(r));
 
     // Split into preferred and everything else
     const preferred = filtered.filter(r => isPreferred(r.sourceUrl));
