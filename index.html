@@ -28,7 +28,21 @@
     const STORAGE_KEY = "healthy-recipe-cookbook-v1";
     const CACHE_KEY = "healthy-recipe-cache-v1";
     const CACHE_TTL = 1000 * 60 * 30;
-    const FILTERS = ["All", "Quick & Easy", "High Protein", "Low Carb", "Meal Prep", "Anti-Inflammatory"];
+    const FILTERS = [
+      "All",
+      "Air Fryer",
+      "Anti-Inflammatory",
+      "High Protein",
+      "Instant Pot",
+      "Low Carb",
+      "Mediterranean",
+      "One-Pot/One-Pan",
+      "Paleo",
+      "Quick & Easy",
+      "Sheet Pan Meals",
+      "Slow Cooker",
+      "Whole30",
+    ];
 
     function loadCache() {
       try { const r = localStorage.getItem(CACHE_KEY); return r ? JSON.parse(r) : {}; } catch { return {}; }
@@ -366,45 +380,54 @@
             </button>
           </div>
 
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>
-            {FILTERS.map(f => (
-              <button key={f} onClick={() => handleFilter(f)} style={{
-                padding: "5px 12px",
-                border: `1px solid ${activeFilter === f ? (dark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.4)") : (dark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.15)")}`,
-                borderRadius: 99, background: activeFilter === f ? (dark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.07)") : "transparent",
-                cursor: "pointer", fontSize: 13, fontWeight: activeFilter === f ? 500 : 400,
-                color: activeFilter === f ? titleColor : metaColor,
-              }}>{f}</button>
-            ))}
-          </div>
-
-          {loading && (
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {[1,2,3,4,5].map(i => <SkeletonCard key={i} dark={dark} />)}
-              <div style={{ textAlign: "center", fontSize: 13, color: metaColor, paddingTop: 4 }}>Loading recipes…</div>
+          <div style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
+            {/* Sidebar filters */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 4, minWidth: 130, flexShrink: 0 }}>
+              {FILTERS.map(f => (
+                <button key={f} onClick={() => handleFilter(f)} style={{
+                  padding: "7px 12px",
+                  border: `1px solid ${activeFilter === f ? (dark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.3)") : "transparent"}`,
+                  borderRadius: 8,
+                  background: activeFilter === f ? (dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.05)") : "transparent",
+                  cursor: "pointer",
+                  fontSize: 13,
+                  fontWeight: activeFilter === f ? 500 : 400,
+                  color: activeFilter === f ? titleColor : metaColor,
+                  textAlign: "left",
+                  width: "100%",
+                }}>{f}</button>
+              ))}
             </div>
-          )}
 
-          {error && !loading && (
-            <div style={{ textAlign: "center", padding: "2rem 0" }}>
-              <div style={{ fontSize: 13, color: "#cc3333", marginBottom: 4 }}>Couldn't load recipes.</div>
-              <div style={{ fontSize: 11, color: metaColor, marginBottom: 14, fontFamily: "monospace", padding: "0 1rem" }}>{error}</div>
-              <Btn onClick={() => loadRecipes(activeFilter, true)}>Try Again</Btn>
-            </div>
-          )}
-
-          {!loading && !error && (
-            <>
-              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                {recipes.map(r => <RecipeCard key={r.id} recipe={r} onOpen={setActiveRecipe} onSave={toggleSave} saved={isSaved(r)} />)}
-              </div>
-              {recipes.length > 0 && (
-                <div style={{ textAlign: "center", marginTop: 16, paddingBottom: 24 }}>
-                  <Btn onClick={() => loadRecipes(activeFilter, true)}>Refresh Feed ↻</Btn>
+            {/* Recipe list */}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              {loading && (
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  {[1,2,3,4,5].map(i => <SkeletonCard key={i} dark={dark} />)}
+                  <div style={{ textAlign: "center", fontSize: 13, color: metaColor, paddingTop: 4 }}>Loading recipes…</div>
                 </div>
               )}
-            </>
-          )}
+              {error && !loading && (
+                <div style={{ textAlign: "center", padding: "2rem 0" }}>
+                  <div style={{ fontSize: 13, color: "#cc3333", marginBottom: 4 }}>Couldn't load recipes.</div>
+                  <div style={{ fontSize: 11, color: metaColor, marginBottom: 14, fontFamily: "monospace" }}>{error}</div>
+                  <Btn onClick={() => loadRecipes(activeFilter, true)}>Try Again</Btn>
+                </div>
+              )}
+              {!loading && !error && (
+                <>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                    {recipes.map(r => <RecipeCard key={r.id} recipe={r} onOpen={setActiveRecipe} onSave={toggleSave} saved={isSaved(r)} />)}
+                  </div>
+                  {recipes.length > 0 && (
+                    <div style={{ textAlign: "center", marginTop: 16, paddingBottom: 24 }}>
+                      <Btn onClick={() => loadRecipes(activeFilter, true)}>Refresh Feed ↻</Btn>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
         </div>
       );
     }
